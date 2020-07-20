@@ -1,9 +1,10 @@
--- A little tweak was made to parse Docker Swarm metadata with fluent-bit
--- https://github.com/fluent/fluent-bit/issues/1499
+-- https://github.com/fluent/fluent-bit/issues/1499 (@konstantin-kornienko)
+-- A few little tweak was made to parse Docker Swarm metadata with fluent-bit (@ziwon)
 DOCKER_VAR_DIR = '/var/lib/docker/containers/'
 DOCKER_CONTAINER_CONFIG_FILE = '/config.v2.json'
 CACHE_TTL_SEC = 300
 
+-- Key-value pairs to get metadata.
 DOCKER_CONTAINER_METADATA = {
   ['docker.container_name'] = '\"Name\":\"/?(.-)\"',
   ['docker.container_image'] = '\"Image\":\"/?(.-)\"',
@@ -14,7 +15,7 @@ DOCKER_CONTAINER_METADATA = {
   ['docker.state'] = '\"State\":%{/?(.-)%}',
 }
 
--- Additional metadata for Swarm
+-- Key-value pairs to parse sub-metadata whose element type is JSON array/object.
 DOCKER_CONTAINER_CHILD_METADTA = {
   ['docker.environment'] = '\"/?(.-)=/?(.-)\",',
   ['docker.labels'] = '/?(.-):/?(.-),',
