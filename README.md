@@ -1,6 +1,6 @@
-# fluent-bit-swarm-metadata
+# fluent-bit-docker-metadata
 
-Got stolen from [here](https://github.com/fluent/fluent-bit/issues/1499), added a little tweak to parse Docker Swarm metadata with fluent-bit.
+Got stolen from [here](https://github.com/fluent/fluent-bit/issues/1499). And a few little things were added to parse JSON arrays and objects from Docker Swarm metadata with fluent-bit.
 
 ## Dockerfile
 ```
