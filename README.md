@@ -1,6 +1,6 @@
 # fluent-bit-docker-metadata
 
-Got stolen from [here](https://github.com/fluent/fluent-bit/issues/1499). And a few little things were added to parse JSON arrays and objects from Docker Swarm metadata with fluent-bit.
+Got stolen from [here](https://github.com/fluent/fluent-bit/issues/1499). And a few little things were added to parse JSON arrays and objects from Docker Swarm metadata for fluent-bit.
 
 ## Dockerfile
 This is an example.
@@ -13,7 +13,6 @@ USER root
 
 ## Usage
 ```
-
 [FILTER]
   Name              lua
   Match             docker.*
