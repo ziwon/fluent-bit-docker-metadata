@@ -15,8 +15,8 @@ DOCKER_CONTAINER_METADATA = {
   ['docker.state'] = '\"State\":%{/?(.-)%}',
 }
 
--- Key-value pairs to parse sub-metadata whose element type is JSON array/object.
-DOCKER_CONTAINER_CHILD_METADTA = {
+-- Additional metadata for Swarm
+DOCKER_CONTAINER_CHILD_METADATA = {
   ['docker.environment'] = '\"/?(.-)=/?(.-)\",',
   ['docker.labels'] = '\"/?(.-)\":\"/?(.-)\",',
   ['docker.state'] = '\"/?(.-)\":\"?/?(.-)\"?,',
@@ -24,7 +24,7 @@ DOCKER_CONTAINER_CHILD_METADTA = {
 
 cache = {}
 
--- Print table in recursive way
+-- Print table in a recursive way
 -- https://gist.github.com/hashmal/874792
 function tprint (tbl, indent)
   if not indent then indent = 0 end
@@ -37,6 +37,24 @@ function tprint (tbl, indent)
       print(formatting .. v)
     end
   end
+end
+
+-- Apply regular expression map to the given string
+function apply_regex_map(str, data_tbl, reg_tbl, func)
+  if str then
+    for key, regex in pairs(reg_tbl) do
+        data_tbl[key] = func(str, regex)
+    end
+  else
+    for key, regex in pairs(reg_tbl) do
+      local tbl = {}
+      for k, v in func(data_tbl[key], regex) do
+        tbl[k] = v
+      end
+      data_tbl[key] = tbl
+    end
+  end
+  return data_tbl
 end
 
 -- Get container id from tag
@@ -54,22 +72,20 @@ function get_container_metadata_from_disk(container_id)
 
   -- parse json file and create record for cache
   local data = { time = os.time() }
+  local reg_match = string.match
+  local reg_gmatch = string.gmatch
   for line in fl:lines() do
-    for key, regex in pairs(DOCKER_CONTAINER_METADATA) do
-      local match = line:match(regex)
-      if match then
-        data[key] = match
-        for child_key, child_regex in pairs(DOCKER_CONTAINER_CHILD_METADTA) do
-          if key == child_key then
-            local tbl = {}
-            for k, v in match:gmatch(child_regex) do
-              tbl[k] = v
-            end
-            data[key] = tbl
-          end
-        end
-      end
-    end
+    data = apply_regex_map(
+      line,
+      data,
+      DOCKER_CONTAINER_METADATA,
+      reg_match
+    )
+    data = apply_regex_map(
+      data,
+      DOCKER_CONTAINER_CHILD_METADATA,
+      reg_gmatch
+    )
   end
   fl:close()
 
@@ -105,6 +121,10 @@ function encrich_with_docker_metadata(tag, timestamp, record)
   -- Metadata found in cache or got from disk, enrich record
   if cached_data then
     for key, regex in pairs(DOCKER_CONTAINER_METADATA) do
+      new_record[key] = cached_data[key]
+    end
+
+    for key, regex in pairs(DOCKER_CONTAINER_CHILD_METADATA) do
       new_record[key] = cached_data[key]
     end
   end
