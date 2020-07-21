@@ -18,8 +18,8 @@ DOCKER_CONTAINER_METADATA = {
 -- Key-value pairs to parse sub-metadata whose element type is JSON array/object.
 DOCKER_CONTAINER_CHILD_METADTA = {
   ['docker.environment'] = '\"/?(.-)=/?(.-)\",',
-  ['docker.labels'] = '/?(.-):/?(.-),',
-  ['docker.state'] = '/?(.-):/?(.-),',
+  ['docker.labels'] = '\"/?(.-)\":\"/?(.-)\",',
+  ['docker.state'] = '\"/?(.-)\":\"?/?(.-)\"?,',
 }
 
 cache = {}
