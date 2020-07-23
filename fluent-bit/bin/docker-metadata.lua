@@ -40,7 +40,7 @@ function tprint (tbl, indent)
 end
 
 -- Apply regular expression map to the given string
-function apply_regex_map(str, data_tbl, reg_tbl, func)
+function apply_regex_map(data_tbl, reg_tbl, func, str)
   if str then
     for key, regex in pairs(reg_tbl) do
         data_tbl[key] = func(str, regex)
@@ -59,7 +59,7 @@ end
 
 -- Get container id from tag
 function get_container_id_from_tag(tag)
-  return tag:match'^.+/(.*)-json.log$'
+  return tag:match'^docker?.([a-z0-9]+)$'
 end
 
 -- Gets metadata from config.v2.json file for container
@@ -76,10 +76,10 @@ function get_container_metadata_from_disk(container_id)
   local reg_gmatch = string.gmatch
   for line in fl:lines() do
     data = apply_regex_map(
-      line,
       data,
       DOCKER_CONTAINER_METADATA,
-      reg_match
+      reg_match,
+      line
     )
     data = apply_regex_map(
       data,
